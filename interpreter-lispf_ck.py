@@ -19,19 +19,19 @@ token_list = [
     'CLOSE_BRACKET',
 ]
 
+operator = lambda operator: (operator)
+
 parser = ox.make_parser([
 
-    ('tuples : OPEN_BRACKET tuples CLOSE_BRACKET', \
-        lambda open_bracket, tuples, close_bracket: [tuples]),
-    ('tuples : term tuples', lambda term, tuples: (term, tuples)),
-    ('tuples : term', None),
-    ('term : atom', None),
+    ('tuple : OPEN_BRACKET term CLOSE_BRACKET', lambda openbracket, term, closebracket: term),
+    ('tuple : OPEN_BRACKET CLOSE_BRACKET', lambda open_bracket, close_bracket: '()'),
+    ('term : atom term', lambda term, other_term: (term, ) + other_term),
+    ('term : atom', lambda term: (term, )),
+    ('atom : tuple', operator),
     ('atom : NAME', lambda name: name),
-    ('atom : NUMBER', lambda x: float(x)),
+    ('atom : NUMBER', lambda x: int(x)),
 
 ] , token_list)
-
-
 
 data = [0]
 ptr = 0
@@ -50,14 +50,7 @@ def build(source_file):
     # print(tokens)
 
     tokens = [value for value in tokens if str(value)[:7] != 'COMMENT' and str(value)[:8] != 'NEW_LINE']
-    final_parser = parser(tokens)
-
-    final_parser = str(final_parser)
-    ast = ""
-    for ch in final_parser:
-        if (ch == "(" or ch == ")"):
-           continue
-        ast += str(ch)
+    ast = parser(tokens)
 
     # print_ast.pprint(ast)
     print(ast)
@@ -77,6 +70,8 @@ def lf(source, code_ptr, ptr):
             elif command[0] == 'do-after':
                 ...
             elif command[0] == 'do-before':
+                ...
+            elif command[0] == 'def':
                 ...
             elif command[0] == 'loop':
                 if data[ptr] != 0:
