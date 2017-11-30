@@ -67,10 +67,24 @@ def lf(source, code_ptr, ptr):
                 data[ptr] = (data[ptr] + int(command[1])) % 256;
             elif command[0] == 'sub':
                 data[ptr] = (data[ptr] - int(command[1])) % 256;
+            elif command[0] == 'do':
+                i = 1
+                while i < len(command):
+                    lf(command[i], code_ptr, ptr)
+                    i += 1
             elif command[0] == 'do-after':
-                ...
+                i = 0
+                while i < len(command[2]):
+                    tupla = ('do', command[1], command[2][i])
+                    lf(tupla, code_ptr, ptr)
+                    i += 1
+
             elif command[0] == 'do-before':
-                ...
+                i = 0
+                while i < len(command[2]):
+                    tupla = ('do', command[2][i], command[1])
+                    lf(tupla, code_ptr, ptr)
+                    i += 1
             elif command[0] == 'def':
                 ...
             elif command[0] == 'loop':
