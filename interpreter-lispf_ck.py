@@ -21,15 +21,17 @@ token_list = [
 
 parser = ox.make_parser([
 
-    ('tuple : OPEN_BRACKET term CLOSE_BRACKET', lambda openbracket, term, closebracket: term),
-    ('tuple : OPEN_BRACKET CLOSE_BRACKET', lambda open_bracket, close_bracket: '()'),
-    ('term : atom term', lambda term, other_term: (term, other_term)),
-    ('term : atom', lambda term: term),
-    ('atom : tuple', lambda op: (op)),
+    ('tuples : OPEN_BRACKET tuples CLOSE_BRACKET', \
+        lambda open_bracket, tuples, close_bracket: [tuples]),
+    ('tuples : term tuples', lambda term, tuples: (term, tuples)),
+    ('tuples : term', None),
+    ('term : atom', None),
     ('atom : NAME', lambda name: name),
-    ('atom : NUMBER', lambda x: int(x)),
+    ('atom : NUMBER', lambda x: float(x)),
 
-], token_list)
+] , token_list)
+
+
 
 data = [0]
 ptr = 0
@@ -48,9 +50,14 @@ def build(source_file):
     # print(tokens)
 
     tokens = [value for value in tokens if str(value)[:7] != 'COMMENT' and str(value)[:8] != 'NEW_LINE']
-    ast = parser(tokens)
+    final_parser = parser(tokens)
 
-    ast = ('do', ('add', '2'), 'right', ('add', '3'), 'left', ('loop', 'dec', 'right', 'inc', 'left'), 'right', ('add', '48'), 'print')
+    final_parser = str(final_parser)
+    ast = ""
+    for ch in final_parser:
+        if (ch == "(" or ch == ")"):
+           continue
+        ast += str(ch)
 
     # print_ast.pprint(ast)
     print(ast)
