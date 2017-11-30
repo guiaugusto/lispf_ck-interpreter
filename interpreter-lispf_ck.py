@@ -19,17 +19,18 @@ token_list = [
     'CLOSE_BRACKET',
 ]
 
-operator = lambda operator: (operator)
+identity = lambda x: x
 
 parser = ox.make_parser([
 
-    ('tuple : OPEN_BRACKET term CLOSE_BRACKET', lambda openbracket, term, closebracket: term),
-    ('tuple : OPEN_BRACKET CLOSE_BRACKET', lambda open_bracket, close_bracket: '()'),
-    ('term : atom term', lambda term, other_term: (term, ) + other_term),
-    ('term : atom', lambda term: (term, )),
-    ('atom : tuple', operator),
-    ('atom : NAME', lambda name: name),
-    ('atom : NUMBER', lambda x: int(x)),
+    ('tuple : OPEN_BRACKET elements CLOSE_BRACKET', lambda a, x, b: x),
+    ('elements : term elements', lambda x, xs: [x] + xs),
+    ('elements : term', lambda x: [x]),
+    ('term : atom', identity),
+    ('term : tuple', identity),
+    ('atom : NAME', identity),
+    ('atom : NUMBER', lambda x: float(x)),
+
 
 ] , token_list)
 
@@ -46,14 +47,11 @@ def build(source_file):
     source = source_file.read()
 
     tokens = lexer(source)
-    # print('tokens:')
-    # print(tokens)
 
     tokens = [value for value in tokens if str(value)[:7] != 'COMMENT' and str(value)[:8] != 'NEW_LINE']
     ast = parser(tokens)
 
     # print_ast.pprint(ast)
-    print(ast)
     lf(ast, code_ptr, ptr)
 
 
