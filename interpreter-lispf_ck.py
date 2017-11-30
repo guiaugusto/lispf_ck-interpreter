@@ -59,8 +59,7 @@ def build(source_file):
 
 def lf(source, code_ptr, ptr):
 
-    while code_ptr < len(source):
-        command = source[code_ptr]
+    for command in source:
 
         if isinstance(command, tuple):
 
@@ -73,7 +72,15 @@ def lf(source, code_ptr, ptr):
             elif command[0] == 'do-before':
                 ...
             elif command[0] == 'loop':
-                ...
+                if data[ptr] != 0:
+                    i = 1
+                    while i < len(command):
+                        lf(command, code_ptr, ptr)
+                        i += 1
+
+                        if data[ptr] == 0:
+                            break
+
         elif command == 'inc':
             data[ptr] = (data[ptr] + 1) % 256;
         elif command == 'dec':
@@ -88,8 +95,6 @@ def lf(source, code_ptr, ptr):
             print(chr(data[ptr]), end='')
         elif command == 'read':
             data[ptr] = ord(getche())
-
-
 
         code_ptr += 1
 
