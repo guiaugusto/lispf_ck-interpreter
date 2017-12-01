@@ -51,7 +51,7 @@ def build(source_file):
     tokens = [value for value in tokens if str(value)[:7] != 'COMMENT' and str(value)[:8] != 'NEW_LINE']
     ast = parser(tokens)
 
-    print_ast.pprint(ast)
+    # print_ast.pprint(ast)
     lf(ast, ptr)
 
 function_definition = {}
@@ -59,6 +59,8 @@ function_definition = {}
 def lf(source, ptr):
 
     for command in source:
+
+        # print(command)
 
         if isinstance(command, list):
 
@@ -75,7 +77,7 @@ def lf(source, ptr):
                 i = 0
                 while i < len(command[2]):
                     lista = ['do', command[1], command[2][i]]
-                    lf(tupla, ptr)
+                    lf(lista, ptr)
                     i += 1
 
             elif command[0] == 'do-before':
@@ -87,14 +89,8 @@ def lf(source, ptr):
             elif command[0] == 'def':
                 function_definition[command[1]] = [command[2], command[3]]
             elif command[0] == 'loop':
-                if data[ptr] != 0:
-                    i = 1
-                    while i < len(command):
-                        lf(command, ptr)
-                        i += 1
-
-                        if data[ptr] == 0:
-                            break
+                while data[ptr] != 0:
+                    lf(command[1:len(command)], ptr)
 
         elif command == 'inc':
             data[ptr] = (data[ptr] + 1) % 256;
