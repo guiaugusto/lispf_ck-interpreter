@@ -24,13 +24,13 @@ identity = lambda x: x
 parser = ox.make_parser([
 
     ('tuple : OPEN_BRACKET elements CLOSE_BRACKET', lambda a, x, b: x),
+    ('tuple : OPEN_BRACKET CLOSE_BRACKET', lambda a, b: '[]'),
     ('elements : term elements', lambda x, xs: [x] + xs),
     ('elements : term', lambda x: [x]),
     ('term : atom', identity),
     ('term : tuple', identity),
     ('atom : NAME', identity),
-    ('atom : NUMBER', lambda x: float(x)),
-
+    ('atom : NUMBER', lambda x: int(x)),
 
 ] , token_list)
 
@@ -51,15 +51,16 @@ def build(source_file):
     tokens = [value for value in tokens if str(value)[:7] != 'COMMENT' and str(value)[:8] != 'NEW_LINE']
     ast = parser(tokens)
 
-    # print_ast.pprint(ast)
-    lf(ast, code_ptr, ptr)
+    print_ast.pprint(ast)
+    lf(ast, ptr)
 
+function_definition = {}
 
-def lf(source, code_ptr, ptr):
+def lf(source, ptr):
 
     for command in source:
 
-        if isinstance(command, tuple):
+        if isinstance(command, list):
 
             if command[0] == 'add':
                 data[ptr] = (data[ptr] + int(command[1])) % 256;
@@ -68,28 +69,28 @@ def lf(source, code_ptr, ptr):
             elif command[0] == 'do':
                 i = 1
                 while i < len(command):
-                    lf(command[i], code_ptr, ptr)
+                    lf(command[i], ptr)
                     i += 1
             elif command[0] == 'do-after':
                 i = 0
                 while i < len(command[2]):
-                    tupla = ('do', command[1], command[2][i])
-                    lf(tupla, code_ptr, ptr)
+                    lista = ['do', command[1], command[2][i]]
+                    lf(tupla, ptr)
                     i += 1
 
             elif command[0] == 'do-before':
                 i = 0
                 while i < len(command[2]):
-                    tupla = ('do', command[2][i], command[1])
-                    lf(tupla, code_ptr, ptr)
+                    lista = ['do', command[2][i], command[1]]
+                    lf(lista, ptr)
                     i += 1
             elif command[0] == 'def':
-                ...
+                function_definition[command[1]] = [command[2], command[3]]
             elif command[0] == 'loop':
                 if data[ptr] != 0:
                     i = 1
                     while i < len(command):
-                        lf(command, code_ptr, ptr)
+                        lf(command, ptr)
                         i += 1
 
                         if data[ptr] == 0:
@@ -109,8 +110,11 @@ def lf(source, code_ptr, ptr):
             print(chr(data[ptr]), end='')
         elif command == 'read':
             data[ptr] = ord(getche())
+        elif command in function_definition:
+            # print(function_definition[command][1])
+            lista = function_definition[command][1]
+            lf(lista, ptr)
 
-        code_ptr += 1
 
 if __name__ == '__main__':
     build()
