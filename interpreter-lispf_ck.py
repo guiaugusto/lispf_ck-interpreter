@@ -60,54 +60,57 @@ def lf(source, ptr):
 
     for command in source:
 
-        # print(command)
-
         if isinstance(command, list):
+            lf(command, ptr)
 
-            if command[0] == 'add':
-                data[ptr] = (data[ptr] + int(command[1])) % 256;
-            elif command[0] == 'sub':
-                data[ptr] = (data[ptr] - int(command[1])) % 256;
-            elif command[0] == 'do':
-                i = 1
-                while i < len(command):
-                    lf(command[i], ptr)
-                    i += 1
-            elif command[0] == 'do-after':
-                i = 0
-                while i < len(command[2]):
-                    lista = ['do', command[1], command[2][i]]
-                    lf(lista, ptr)
-                    i += 1
+        elif command == 'do-after':
+            i = 0
+            while i < len(source[2]):
+                lista = ['do', source[1], source[2][i]]
+                lf(lista, ptr)
+                i += 1
 
-            elif command[0] == 'do-before':
-                i = 0
-                while i < len(command[2]):
-                    lista = ['do', command[2][i], command[1]]
-                    lf(lista, ptr)
-                    i += 1
-            elif command[0] == 'def':
-                function_definition[command[1]] = [command[2], command[3]]
-            elif command[0] == 'loop':
-                while data[ptr] != 0:
-                    lf(command[1:len(command)], ptr)
+        elif command == 'do-before':
+            i = 0
+            while i < len(source[2]):
+                lista = ['do', source[2][i], source[1]]
+                lf(lista, ptr)
+                i += 1
+
+        elif command == 'loop':
+            while data[ptr] != 1:
+                lf(source[1:len(source)], ptr)
+
+        elif command == 'def':
+            function_definition[source[1]] = [source[2], source[3]]
+
+        elif command == 'add':
+            data[ptr] = (data[ptr] + int(source[1])) % 256
+
+        elif command == 'sub':
+            data[ptr] = (data[ptr] - int(source[1])) % 256
 
         elif command == 'inc':
             data[ptr] = (data[ptr] + 1) % 256;
+
         elif command == 'dec':
             data[ptr] = (data[ptr] - 1) % 256;
+
         elif command == 'right':
             ptr += 1
             if ptr == len(data):
                 data.append(0)
+
         elif command == 'left':
             ptr -= 1
+
         elif command == 'print':
             print(chr(data[ptr]), end='')
+
         elif command == 'read':
             data[ptr] = ord(getche())
+
         elif command in function_definition:
-            # print(function_definition[command][1])
             lista = function_definition[command][1]
             lf(lista, ptr)
 
