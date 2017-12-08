@@ -66,23 +66,27 @@ def lf(source, ptr):
         elif command == 'do-after':
             i = 0
             while i < len(source[2]):
-                lista = ['do', source[1], source[2][i]]
+                lista = ['do', source[2][i], source[1]]
                 lf(lista, ptr)
                 i += 1
+            break
 
         elif command == 'do-before':
             i = 0
             while i < len(source[2]):
-                lista = ['do', source[2][i], source[1]]
+                lista = ['do', source[1], source[2][i]]
                 lf(lista, ptr)
                 i += 1
+            break
 
         elif command == 'loop':
-            while data[ptr] != 1:
+            while data[ptr] != 0:
                 lf(source[1:len(source)], ptr)
+            break
 
         elif command == 'def':
             function_definition[source[1]] = [source[2], source[3]]
+            break
 
         elif command == 'add':
             data[ptr] = (data[ptr] + int(source[1])) % 256
